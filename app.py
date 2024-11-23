@@ -21,6 +21,10 @@ if os.path.exists(header_image_path):
 else:
     current_header_image = "https://via.placeholder.com/200"
 
+# Initialize session state for admin access
+if "admin_access" not in st.session_state:
+    st.session_state["admin_access"] = False
+
 # Simulate User Sign-up Data with realistic names, country, and phone numbers
 def simulate_user_signup_data(num_users=100):
     np.random.seed(42)
@@ -123,12 +127,11 @@ def create_challenge_completion_chart(challenge_df):
     return chart
 
 
-# Display header image
-st.image(current_header_image, width=200)
-
 ### Streamlit App Starts Here ###
 st.title('User Sign Up and Challenge Dashboard')
 
+# Display header image
+st.image(current_header_image, width=200)
 
 # Simulate user sign-up data
 users_df = simulate_user_signup_data()
@@ -160,18 +163,22 @@ user_scores_df = simulate_user_challenge_scores(users_df)
 st.subheader('User Challenge Scores')
 st.dataframe(user_scores_df)
 
-# Add a password-protected upload box
-st.subheader('Update Header Image')
-password = st.text_input('Enter Password:', type='password')
+# Add Admin Settings Button
+if st.button('Admin Settings'):
+    st.session_state["admin_access"] = True
 
-if password == 'glownet1234':
-    uploaded_image = st.file_uploader('Upload an image (JPEG/PNG):', type=['jpg', 'jpeg', 'png'])
-    if uploaded_image is not None:
-        st.image(uploaded_image, caption='Uploaded Header Image Preview', width=200)
-        if st.button('Update Header Image'):
-            # Save the uploaded image to disk
-            with open(header_image_path, "wb") as f:
-                f.write(uploaded_image.getbuffer())
-            st.success('Header image updated successfully! Please refresh the page to see the new header.')
-else:
-    st.warning('Enter the correct password to upload an image.')
+if st.session_state["admin_access"]:
+    admin_password = st.text_input('Enter Admin Password:', type='password', key='admin_password')
+
+    if admin_password == 'glownet1234':
+        st.subheader('Update Header Image')
+        uploaded_image = st.file_uploader('Upload an image (JPEG/PNG):', type=['jpg', 'jpeg', 'png'])
+        if uploaded_image is not None:
+            st.image(uploaded_image, caption='Uploaded Header Image Preview', width=200)
+            if st.button('Update Header Image', key='update_header_image'):
+                # Save the uploaded image to disk
+                with open(header_image_path, "wb") as f:
+                    f.write(uploaded_image.getbuffer())
+                st.success('Header image updated successfully! Please refresh the page to see the new header.')
+    else:
+        st.error('Incorrect password.')
