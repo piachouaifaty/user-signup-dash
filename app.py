@@ -128,10 +128,13 @@ def create_challenge_completion_chart(challenge_df):
 
 
 ### Streamlit App Starts Here ###
-st.title('User Sign Up and Challenge Dashboard')
+
 
 # Display header image
 st.image(current_header_image, width=200)
+
+st.title('User Sign Up and Challenge Dashboard')
+
 
 # Simulate user sign-up data
 users_df = simulate_user_signup_data()
